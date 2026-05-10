@@ -1,0 +1,289 @@
+
+<style>
+  h2.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 10px; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: var(--color-text-secondary); }
+  select { width: 100%; }
+  input[type=range] { width: 100%; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: var(--border-radius-md); }
+  .tag-teal { background: #E1F5EE; color: #0F6E56; }
+  .tag-amber { background: #FAEEDA; color: #854F0B; }
+  .tag-blue { background: #E6F1FB; color: #185FA5; }
+  .tag-coral { background: #FAECE7; color: #993C1D; }
+  .score-bar-wrap { background: var(--color-background-secondary); border-radius: 4px; height: 8px; overflow: hidden; margin-top: 4px; }
+  .score-bar { height: 8px; border-radius: 4px; background: #1D9E75; transition: width 0.5s ease; }
+  .metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; }
+  .metric-val { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+  .metric-lbl { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+  .accion-badge { font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: var(--border-radius-md); background: #E1F5EE; color: #0F6E56; }
+  .candidate { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .candidate:last-child { border-bottom: none; }
+  .candidate-name { font-size: 13px; flex: 1; color: var(--color-text-primary); }
+  .candidate-score { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); min-width: 40px; text-align: right; }
+  .regla { font-size: 12px; color: var(--color-text-secondary); padding: 4px 0; display: flex; align-items: center; gap: 6px; }
+  .regla i { font-size: 14px; }
+  .btn-run { width: 100%; margin-top: 12px; font-size: 14px; padding: 9px; }
+</style>
+
+<h2 class="sr-only">Agente inteligente de recomendación de ejercicio — interfaz de demo interactiva</h2>
+
+<div style="padding: 0.5rem 0 1.5rem;">
+
+  <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 1.5rem;">
+    <span style="font-size: 18px; font-weight: 500; color: var(--color-text-primary);">Agente de ejercicio</span>
+    <span class="tag tag-teal">IA activa</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.4fr); gap: 14px;">
+
+    <!-- ENTRADA -->
+    <div class="card">
+      <p class="section-title"><i class="ti ti-eye" aria-hidden="true"></i> Percepción — estado S</p>
+
+      <div class="field" style="margin-bottom:10px;">
+        <label>Energía</label>
+        <select id="energia">
+          <option value="baja">Baja</option>
+          <option value="media" selected>Media</option>
+          <option value="alta">Alta</option>
+        </select>
+      </div>
+
+      <div class="field" style="margin-bottom:10px;">
+        <label>Objetivo</label>
+        <select id="objetivo">
+          <option value="cardio" selected>Cardio</option>
+          <option value="fuerza">Fuerza</option>
+          <option value="movilidad">Movilidad</option>
+          <option value="recuperacion">Recuperación</option>
+        </select>
+      </div>
+
+      <div class="field" style="margin-bottom:10px;">
+        <label>Restricciones</label>
+        <select id="restricciones">
+          <option value="ninguna" selected>Ninguna</option>
+          <option value="lesion">Lesión</option>
+          <option value="fatiga">Fatiga</option>
+          <option value="molestia">Molestia</option>
+        </select>
+      </div>
+
+      <div class="field" style="margin-bottom:10px;">
+        <label>Tiempo disponible: <strong id="tiempo-val">30</strong> min</label>
+        <input type="range" min="5" max="120" step="5" value="30" id="tiempo" oninput="document.getElementById('tiempo-val').textContent=this.value">
+      </div>
+
+      <div class="field" style="margin-bottom:10px;">
+        <label>Feedback previo: <strong id="feedback-val">4.0</strong>/5</label>
+        <input type="range" min="1" max="5" step="0.5" value="4" id="feedback" oninput="document.getElementById('feedback-val').textContent=parseFloat(this.value).toFixed(1)">
+      </div>
+
+      <div class="field" style="margin-bottom:10px;">
+        <label>Historial (ejercicios recientes)</label>
+        <select id="historial" multiple style="height:64px; font-size:12px;">
+          <option value="caminar" selected>Caminar</option>
+          <option value="bicicleta" selected>Bicicleta</option>
+          <option value="correr">Correr</option>
+          <option value="yoga">Yoga</option>
+          <option value="sentadillas">Sentadillas</option>
+          <option value="flexiones">Flexiones</option>
+        </select>
+        <span style="font-size:11px;color:var(--color-text-secondary);">Ctrl/Cmd + clic para seleccionar varios</span>
+      </div>
+
+      <button class="btn-run" onclick="ejecutarAgente()"><i class="ti ti-player-play" aria-hidden="true"></i> Ejecutar agente ↗</button>
+    </div>
+
+    <!-- SALIDA -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+
+      <!-- Recomendación principal -->
+      <div class="card" id="resultado-card">
+        <p class="section-title"><i class="ti ti-check" aria-hidden="true"></i> Decisión — a* = argmax f(s,a)</p>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span id="ejercicio-nombre" style="font-size:20px;font-weight:500;color:var(--color-text-primary);">bicicleta</span>
+          <span id="intensidad-tag" class="tag tag-teal">media</span>
+        </div>
+        <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:10px;">
+          <i class="ti ti-clock" aria-hidden="true"></i> <span id="duracion-val">30</span> min &nbsp;|&nbsp;
+          <span id="accion-badge" class="accion-badge">a2 – rutina completa</span>
+        </div>
+        <div style="margin-bottom:6px;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--color-text-secondary);">
+            <span>Score f(s,a)</span><span id="score-txt">0.85</span>
+          </div>
+          <div class="score-bar-wrap"><div class="score-bar" id="score-bar" style="width:85%"></div></div>
+        </div>
+        <p id="justificacion" style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0;line-height:1.5;">Se seleccionó "bicicleta" con score 0.8500. Objetivo: cardio, energía: media, tiempo: 30 min.</p>
+      </div>
+
+      <!-- Métricas -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div class="metric">
+          <div class="metric-val" id="m-score">0.85</div>
+          <div class="metric-lbl">Score máx</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="m-candidatos">3</div>
+          <div class="metric-lbl">Candidatos</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="m-decisiones">1</div>
+          <div class="metric-lbl">Decisiones</div>
+        </div>
+      </div>
+
+      <!-- Top candidatos -->
+      <div class="card">
+        <p class="section-title"><i class="ti ti-chart-bar" aria-hidden="true"></i> Top candidatos evaluados</p>
+        <div id="candidatos-list">
+          <div class="candidate"><span class="candidate-name">bicicleta</span><div style="flex:1;"><div class="score-bar-wrap"><div class="score-bar" style="width:85%"></div></div></div><span class="candidate-score">0.85</span></div>
+          <div class="candidate"><span class="candidate-name">caminar</span><div style="flex:1;"><div class="score-bar-wrap"><div class="score-bar" style="width:85%"></div></div></div><span class="candidate-score">0.85</span></div>
+          <div class="candidate"><span class="candidate-name">correr</span><div style="flex:1;"><div class="score-bar-wrap"><div class="score-bar" style="width:68.5%"></div></div></div><span class="candidate-score">0.69</span></div>
+        </div>
+      </div>
+
+      <!-- Reglas aplicadas -->
+      <div class="card">
+        <p class="section-title"><i class="ti ti-shield" aria-hidden="true"></i> Reglas activas</p>
+        <div id="reglas-list">
+          <div class="regla"><i class="ti ti-check" style="color:#1D9E75"></i> Sin restricciones físicas activas</div>
+          <div class="regla"><i class="ti ti-check" style="color:#1D9E75"></i> Energía suficiente para intensidad media</div>
+          <div class="regla"><i class="ti ti-check" style="color:#1D9E75"></i> Tiempo suficiente para el ejercicio</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const EJERCICIOS = [
+  ["sentadillas","fuerza","alta",20,["lesion","molestia"]],
+  ["peso muerto","fuerza","alta",25,["lesion"]],
+  ["flexiones","fuerza","media",15,[]],
+  ["plancha","fuerza","media",10,[]],
+  ["bicicleta","cardio","media",30,["lesion"]],
+  ["correr","cardio","alta",30,["lesion","molestia"]],
+  ["caminar","cardio","baja",20,[]],
+  ["saltar cuerda","cardio","alta",20,["lesion","fatiga"]],
+  ["yoga","movilidad","baja",30,[]],
+  ["estiramientos","movilidad","baja",15,[]],
+  ["movilidad articular","movilidad","baja",20,[]],
+  ["foam roller","recuperacion","baja",15,[]],
+  ["respiración","recuperacion","baja",10,[]],
+  ["caminata suave","recuperacion","baja",20,[]],
+];
+const ENERGIA_VAL = {baja:0.2,media:0.6,alta:1.0};
+const INTENS_VAL = {baja:0.2,media:0.6,alta:1.0};
+const PESOS = {w1:0.25,w2:0.35,w3:0.30,w4:0.10};
+let decisiones = 0;
+
+function getHistorial() {
+  const sel = document.getElementById("historial");
+  return Array.from(sel.selectedOptions).map(o => o.value);
+}
+
+function aplicarReglas(estado, ej) {
+  const [,, intens, tiempoEj, restricEj] = ej;
+  if (estado.restricciones === "lesion" && intens !== "baja") return false;
+  if (estado.energia === "baja" && intens === "alta") return false;
+  if (restricEj.includes(estado.restricciones)) return false;
+  if (estado.tiempo < 15 && tiempoEj > estado.tiempo) return false;
+  return true;
+}
+
+function evaluar(estado, ej) {
+  const [nombre, objEj, intens, tiempoEj, restricEj] = ej;
+  const pref = estado.historial.includes(nombre) ? estado.feedback/5 : 0.3;
+  const coinObj = objEj === estado.objetivo ? 1.0 : 0.0;
+  const ajTiempo = tiempoEj <= estado.tiempo ? 1.0 : Math.max(0, 1-(tiempoEj-estado.tiempo)/60);
+  const adec = coinObj*0.7 + ajTiempo*0.3;
+  const seg = restricEj.includes(estado.restricciones) ? 0.0 : 1.0;
+  const fat = Math.max(0, INTENS_VAL[intens] - ENERGIA_VAL[estado.energia]);
+  return +(PESOS.w1*pref + PESOS.w2*adec + PESOS.w3*seg - PESOS.w4*fat).toFixed(4);
+}
+
+function ejecutarAgente() {
+  const estado = {
+    energia: document.getElementById("energia").value,
+    tiempo: +document.getElementById("tiempo").value,
+    objetivo: document.getElementById("objetivo").value,
+    restricciones: document.getElementById("restricciones").value,
+    historial: getHistorial(),
+    feedback: +document.getElementById("feedback").value,
+  };
+
+  const candidatos = EJERCICIOS
+    .filter(e => aplicarReglas(estado, e))
+    .map(e => ({score: evaluar(estado,e), ej: e}))
+    .sort((a,b) => b.score - a.score);
+
+  decisiones++;
+
+  if (!candidatos.length) {
+    document.getElementById("ejercicio-nombre").textContent = "descanso activo";
+    document.getElementById("intensidad-tag").textContent = "baja";
+    document.getElementById("duracion-val").textContent = Math.min(estado.tiempo,15);
+    document.getElementById("accion-badge").textContent = "a4 – descanso activo";
+    document.getElementById("score-txt").textContent = "0.00";
+    document.getElementById("score-bar").style.width = "0%";
+    document.getElementById("justificacion").textContent = "No se encontraron ejercicios seguros. Se recomienda descanso.";
+    document.getElementById("m-score").textContent = "0.00";
+    document.getElementById("m-candidatos").textContent = "0";
+    document.getElementById("m-decisiones").textContent = decisiones;
+    document.getElementById("candidatos-list").innerHTML = '<p style="font-size:13px;color:var(--color-text-secondary)">Sin candidatos válidos para este estado.</p>';
+    actualizarReglas(estado);
+    return;
+  }
+
+  const mejor = candidatos[0];
+  const [nombre, objEj, intens, tiempoEj] = mejor.ej;
+  const duracion = Math.min(tiempoEj, estado.tiempo);
+  const accion = objEj === estado.objetivo ? "a2 – rutina completa" : mejor.score < 0.4 ? "a4 – descanso activo" : "a1 – ejercicio";
+
+  document.getElementById("ejercicio-nombre").textContent = nombre;
+  document.getElementById("intensidad-tag").textContent = intens;
+  document.getElementById("duracion-val").textContent = duracion;
+  document.getElementById("accion-badge").textContent = accion;
+  document.getElementById("score-txt").textContent = mejor.score.toFixed(2);
+  document.getElementById("score-bar").style.width = (mejor.score * 100).toFixed(0) + "%";
+
+  let just = `Se seleccionó "${nombre}" con score ${mejor.score.toFixed(4)}. `;
+  if (estado.restricciones !== "ninguna") just += `Restricción "${estado.restricciones}" considerada. `;
+  if (estado.historial.includes(nombre)) just += `Aparece en historial (preferencia detectada). `;
+  just += `Objetivo: ${estado.objetivo}, energía: ${estado.energia}, tiempo: ${estado.tiempo} min.`;
+  document.getElementById("justificacion").textContent = just;
+
+  document.getElementById("m-score").textContent = mejor.score.toFixed(2);
+  document.getElementById("m-candidatos").textContent = candidatos.length;
+  document.getElementById("m-decisiones").textContent = decisiones;
+
+  const top3 = candidatos.slice(0,3);
+  document.getElementById("candidatos-list").innerHTML = top3.map(c => {
+    const pct = (c.score*100).toFixed(0);
+    return `<div class="candidate"><span class="candidate-name">${c.ej[0]}</span><div style="flex:1;"><div class="score-bar-wrap"><div class="score-bar" style="width:${pct}%"></div></div></div><span class="candidate-score">${c.score.toFixed(2)}</span></div>`;
+  }).join("");
+
+  actualizarReglas(estado);
+}
+
+function actualizarReglas(estado) {
+  const reglas = [];
+  if (estado.restricciones === "lesion") reglas.push({ok:false, txt:'Lesión activa — solo ejercicios de baja intensidad'});
+  else reglas.push({ok:true, txt:'Sin restricciones físicas activas'});
+  if (estado.energia === "baja") reglas.push({ok:false, txt:'Energía baja — ejercicios de alta intensidad bloqueados'});
+  else reglas.push({ok:true, txt:`Energía ${estado.energia} — intensidad media/alta permitida`});
+  if (estado.tiempo < 15) reglas.push({ok:false, txt:'Tiempo < 15 min — solo ejercicios cortos disponibles'});
+  else reglas.push({ok:true, txt:`Tiempo disponible: ${estado.tiempo} min — sin restricción de tiempo`});
+  if (estado.restricciones === "fatiga") reglas.push({ok:false, txt:'Fatiga activa — ejercicios de alto impacto bloqueados'});
+
+  document.getElementById("reglas-list").innerHTML = reglas.map(r =>
+    `<div class="regla"><i class="ti ti-${r.ok?'check':'x'}" style="color:${r.ok?'#1D9E75':'#D85A30'}"></i>${r.txt}</div>`
+  ).join("");
+}
+</script>
